@@ -1,0 +1,52 @@
+plant_ai_diagnostic_app/
+├── lib/
+│   ├── core/
+│   │   ├── api.dart
+│   │   └── models/
+│   │       ├── user.dart
+│   │       ├── medicine.dart
+│   │       ├── cart.dart
+│   │       ├── doctor.dart
+│   │       ├── diagnosis.dart
+│   │       ├── appointment.dart
+│   │       └── chat.dart
+│   ├── features/
+│   │   ├── auth/
+│   │   │   ├── login_screen.dart
+│   │   │   └── signup_screen.dart
+│   │   ├── home/
+│   │   │   └── home_screen.dart
+│   │   ├── diagnosis/
+│   │   │   ├── diagnosis_screen.dart
+│   │   │   └── diagnosis_history_screen.dart
+│   │   ├── chat/
+│   │   │   ├── community_chat_screen.dart
+│   │   │   └── doctor_chat_screen.dart
+│   │   ├── doctor/
+│   │   │   ├── doctor_list_screen.dart
+│   │   │   ├── doctor_profile_screen.dart
+│   │   │   └── rate_doctor_screen.dart
+│   │   ├── appointment/
+│   │   │   ├── appointment_booking_screen.dart
+│   │   │   └── appointment_list_screen.dart
+│   │   ├── cart/
+│   │   │   ├── cart_screen.dart
+│   │   │   └── checkout_screen.dart
+│   │   ├── marketplace/
+│   │   │   ├── marketplace_screen.dart
+│   │   │   └── medicine_detail_screen.dart
+│   │   ├── loyalty/
+│   │   │   └── loyalty_screen.dart
+│   │   └── admin/
+│   │       ├── admin_panel_screen.dart
+│   │       ├── user_management_screen.dart
+│   │       └── medicine_tracking_screen.dart
+│   ├── widgets/
+│   │   ├── custom_button.dart
+│   │   ├── custom_textfield.dart
+│   │   ├── medicine_card.dart
+│   │   ├── doctor_card.dart
+│   │   └── chat_bubble.dart
+│   └── main.dart
+├── pubspec.yaml
+└── README.md
