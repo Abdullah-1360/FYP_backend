@@ -15,27 +15,12 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 require('dotenv').config();
-
+const dbconfig=require('./config/db'); // Ensure this is the correct path to your db.js file
 const app = express();
 app.use(express.json());
+dbconfig(); // Call the function to connect to the database
 
 
-if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL environment variable is not set');
-  process.exit(1);
-}
-
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => {
-  console.log('MongoDB connected');
-})
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1); // Exit the process if the connection fails
-});
     app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
