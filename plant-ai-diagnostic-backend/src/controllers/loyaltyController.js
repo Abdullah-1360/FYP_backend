@@ -1,5 +1,18 @@
 const Loyalty = require('../models/Loyalty');
-
+// Function to get loyalty rewards
+// Function to get loyalty rewards
+exports.getLoyaltyRewards = async (req, res) => {
+    try {
+        // Replace this with your actual rewards logic or DB query
+        const rewards = [
+            { id: 1, name: "Free Consultation", pointsRequired: 100 },
+            { id: 2, name: "Discount on Medicine", pointsRequired: 200 }
+        ];
+        res.status(200).json(rewards);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
 // Function to get loyalty points for a user
 exports.getLoyaltyPoints = async (req, res) => {
     try {

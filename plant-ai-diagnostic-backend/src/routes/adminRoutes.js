@@ -4,12 +4,12 @@ const adminController = require('../controllers/adminController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Route to view all users
-router.get('/users', authMiddleware.verifyAdmin, adminController.viewUsers);
+router.get('/users', authMiddleware.authorizeAdmin, adminController.viewUsers);
 
 // Route to block a user
-router.post('/users/block/:id', authMiddleware.verifyAdmin, adminController.blockUser);
+router.post('/users/block/:id', authMiddleware.authorizeAdmin, adminController.blockUser);
 
 // Route to track medicines
-router.get('/medicines', authMiddleware.verifyAdmin, adminController.trackMedicines);
-
+router.get('/medicines', authMiddleware.authorizeAdmin, adminController.trackMedicines);
+router.post('/users/unblock/:id', authMiddleware.authorizeAdmin, adminController.unblockUser);
 module.exports = router;

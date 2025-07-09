@@ -27,3 +27,12 @@ exports.viewCart = async (req, res) => {
         res.status(500).json({ message: "Error retrieving cart.", error });
     }
 };
+exports.clearCart = async (req, res) => {
+    const { userId } = req.body; // or req.user.id if using auth
+    try {
+        // Logic to clear the cart
+        res.status(200).json({ message: "Cart cleared successfully." });
+    } catch (error) {
+        res.status(500).json({ message: "Error clearing cart.", error });
+    }
+};

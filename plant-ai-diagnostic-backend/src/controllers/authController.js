@@ -1,3 +1,4 @@
+// authController.js
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -17,6 +18,7 @@ exports.signup = async (req, res) => {
 };
 
 // User login
+// ...existing code...
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -24,6 +26,10 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.isBlocked) {
+            return res.status(403).json({ message: 'Your account has been blocked. Please contact support.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);

@@ -51,6 +51,18 @@ exports.updateMedicine = async (req, res) => {
         res.status(500).json({ message: 'Error updating medicine', error });
     }
 };
+// Get details of a specific medicine
+exports.getMedicineById = async (req, res) => {
+    try {
+        const medicine = await Marketplace.findById(req.params.medicineId);
+        if (!medicine) {
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+        res.status(200).json(medicine);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving medicine', error });
+    }
+};
 
 // Delete a medicine from the marketplace
 exports.deleteMedicine = async (req, res) => {

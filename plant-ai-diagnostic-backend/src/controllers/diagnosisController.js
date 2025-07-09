@@ -2,7 +2,7 @@ const Diagnosis = require('../models/Diagnosis');
 const aiDiagnosisService = require('../services/aiDiagnosisService');
 
 // Function to upload an image for diagnosis
-exports.uploadImageForDiagnosis = async (req, res) => {
+exports.uploadImage = async (req, res) => {
     try {
         const image = req.file; // Assuming you're using multer for file uploads
         if (!image) {
@@ -16,13 +16,15 @@ exports.uploadImageForDiagnosis = async (req, res) => {
     }
 };
 
-// Function to retrieve previous diagnosis results
-exports.getDiagnosisResults = async (req, res) => {
+// Function to retrieve a specific diagnosis result by ID
+exports.getDiagnosisResult = async (req, res) => {
     try {
-        const userId = req.user.id; // Assuming user ID is available in req.user
-        const results = await Diagnosis.find({ userId }).sort({ createdAt: -1 });
-        res.status(200).json(results);
+        const diagnosis = await Diagnosis.findById(req.params.id);
+        if (!diagnosis) {
+            return res.status(404).json({ message: 'Diagnosis result not found' });
+        }
+        res.status(200).json(diagnosis);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving diagnosis results', error });
+        res.status(500).json({ message: 'Error retrieving diagnosis result', error });
     }
 };

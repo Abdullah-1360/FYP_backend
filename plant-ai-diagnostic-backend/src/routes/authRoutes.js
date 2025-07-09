@@ -1,3 +1,4 @@
+// authRoutes.js
 const express = require('express');
 const { signup, login } = require('../controllers/authController');
 const { validateSignup, validateLogin } = require('../middlewares/authMiddleware');
