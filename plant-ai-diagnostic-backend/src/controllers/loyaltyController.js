@@ -1,6 +1,5 @@
 const Loyalty = require('../models/Loyalty');
 // Function to get loyalty rewards
-// Function to get loyalty rewards
 exports.getLoyaltyRewards = async (req, res) => {
     try {
         // Replace this with your actual rewards logic or DB query

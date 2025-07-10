@@ -18,7 +18,6 @@ exports.signup = async (req, res) => {
 };
 
 // User login
-// ...existing code...
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 

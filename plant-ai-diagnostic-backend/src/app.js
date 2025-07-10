@@ -15,7 +15,7 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 require('dotenv').config();
-const dbconfig=require('./config/db'); // Ensure this is the correct path to your db.js file
+const dbconfig=require('./config/db'); 
 const app = express();
 app.use(express.json());
 dbconfig(); // Call the function to connect to the database
