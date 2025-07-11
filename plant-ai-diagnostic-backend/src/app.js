@@ -21,7 +21,7 @@ app.use(express.json());
 dbconfig(); // Call the function to connect to the database
 
 
-    app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/cart', cartRoutes);
