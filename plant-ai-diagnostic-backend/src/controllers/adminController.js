@@ -31,6 +31,30 @@ exports.trackMedicines = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving medicines', error });
     }
 };
+// add at the bottom
+const Doctor = require('../models/Doctor');
+
+// Add a new doctor
+exports.addDoctor = async (req, res) => {
+  try {
+    const { name, specialization, experience } = req.body;
+
+    if (!name || !specialization || experience == null) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const doctor = new Doctor({
+      name,
+      specialization,
+      experience,
+    });
+
+    await doctor.save();
+    res.status(201).json({ message: 'Doctor added successfully', doctor });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding doctor', error: error.message });
+  }
+};
 exports.unblockUser = async (req, res) => {
     try {
         const { id } = req.params;

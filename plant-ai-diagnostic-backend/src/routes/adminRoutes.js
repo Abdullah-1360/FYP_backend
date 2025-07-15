@@ -11,5 +11,6 @@ router.post('/users/block/:id', authMiddleware.authorizeAdmin, adminController.b
 
 // Route to track medicines
 router.get('/medicines', authMiddleware.authorizeAdmin, adminController.trackMedicines);
+router.post('/adddoctor', authMiddleware.authorizeAdmin, adminController.adddoctor);
 router.post('/users/unblock/:id', authMiddleware.authorizeAdmin, adminController.unblockUser);
 module.exports = router;
