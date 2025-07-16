@@ -1,5 +1,14 @@
 const jwt = require('jsonwebtoken');
 
+function verifyToken(token) {
+    if (!token) return null;
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (ex) {
+        return null;
+    }
+}
+
 module.exports = {
     authenticateUser: (req, res, next) => {
         const token = req.header('Authorization');
@@ -38,5 +47,7 @@ module.exports = {
             return res.status(400).json({ message: 'Email and password are required.' });
         }
         next();
-    }
+    },
+
+    verifyToken,
 };

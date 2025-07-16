@@ -9,7 +9,7 @@ const chatSchema = new mongoose.Schema({
     receiverId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false // Not required for community messages
     },
     message: {
         type: String,
@@ -23,7 +23,11 @@ const chatSchema = new mongoose.Schema({
         type: String,
         enum: ['community', 'doctor'],
         required: true
-    }
+    },
+    readBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 });
 
 const Chat = mongoose.model('Chat', chatSchema);

@@ -1,5 +1,6 @@
 exports.addItemToCart = async (req, res) => {
-    const { userId, itemId, quantity } = req.body;
+    const userId = req.user.id;
+    const { itemId, quantity } = req.body;
     try {
         // Logic to add item to cart
         res.status(201).json({ message: "Item added to cart successfully." });
@@ -9,7 +10,8 @@ exports.addItemToCart = async (req, res) => {
 };
 
 exports.removeItemFromCart = async (req, res) => {
-    const { userId, itemId } = req.params;
+    const userId = req.user.id;
+    const { itemId } = req.params;
     try {
         // Logic to remove item from cart
         res.status(200).json({ message: "Item removed from cart successfully." });
@@ -19,7 +21,7 @@ exports.removeItemFromCart = async (req, res) => {
 };
 
 exports.viewCart = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.user.id;
     try {
         // Logic to view cart items
         res.status(200).json({ message: "Cart retrieved successfully.", cartItems: [] });
@@ -28,7 +30,7 @@ exports.viewCart = async (req, res) => {
     }
 };
 exports.clearCart = async (req, res) => {
-    const { userId } = req.body; // or req.user.id if using auth
+    const userId = req.user.id;
     try {
         // Logic to clear the cart
         res.status(200).json({ message: "Cart cleared successfully." });

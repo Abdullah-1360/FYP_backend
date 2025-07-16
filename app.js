@@ -1,12 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const http = require('http');
+const { Server } = require('socket.io');
+const { verifyToken } = require('./middlewares/authMiddleware');
+const chatService = require('./services/chatService');
 const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const cartRoutes = require('./routes/cartRoutes');
-const chatRoutes = require('./routes/chatRoutes');
 const diagnosisRoutes = require('./routes/diagnosisRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const loyaltyRoutes = require('./routes/loyaltyRoutes');
@@ -25,7 +28,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/cart', cartRoutes);
-app.use('/api/chat', chatRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
@@ -36,6 +38,20 @@ app.use('/api/admin', adminRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// --- SOCKET.IO SETUP ---
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*', // Adjust as needed for production
+        methods: ['GET', 'POST']
+    }
+});
+
+// Move all chat socket logic to a separate file
+const setupChatSockets = require('./sockets/chatSocket');
+setupChatSockets(io);
+
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
