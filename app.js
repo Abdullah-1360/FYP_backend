@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const http = require('http');
+const cors = require('cors');
 const { Server } = require('socket.io');
 const { verifyToken } = require('./middlewares/authMiddleware');
 const chatService = require('./services/chatService');
@@ -16,6 +17,7 @@ const loyaltyRoutes = require('./routes/loyaltyRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const medicineRoutes = require('./routes/medicineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 require('dotenv').config();
 const dbconfig=require('./config/db'); 
@@ -34,7 +36,11 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/admin', adminRoutes);
-
+app.use('/api/chat', chatRoutes);
+// Serve uploads statically
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(cors());
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
