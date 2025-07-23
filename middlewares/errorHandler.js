@@ -1,7 +1,12 @@
-module.exports = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({
+    
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({
         success: false,
-        message: 'An unexpected error occurred. Please try again later.'
+        message: err.message || 'Server Error',
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack
     });
 };
+
+module.exports = errorHandler;

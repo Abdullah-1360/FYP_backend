@@ -13,7 +13,15 @@ const chatSchema = new mongoose.Schema({
     },
     message: {
         type: String,
-        required: true
+        required: false // Allow media-only messages
+    },
+    fileUrl: {
+        type: String,
+        required: false
+    },
+    fileType: {
+        type: String,
+        required: false
     },
     timestamp: {
         type: Date,

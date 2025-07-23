@@ -1,11 +1,12 @@
-const { verifyToken } = require('../middlewares/authMiddleware');
+const { verifyUserToken } = require('../middlewares/authMiddleware');
 const chatService = require('../services/chatService');
+const { getFullUrl } = require('../utils/helpers');
 
 const onlineUsers = new Map(); // userId -> socketId
 
 function socketAuthMiddleware(socket, next) {
     const token = socket.handshake.auth?.token;
-    const user = verifyToken(token);
+    const user = verifyUserToken(token);
     if (!user) {
         return next(new Error('Authentication error: Invalid or missing token'));
     }
@@ -39,21 +40,34 @@ function setupChatSockets(io) {
         // Community message
         socket.on('communityMessage', async (data, callback) => {
             try {
-                const saved = await chatService.createCommunityMessage({ sender: socket.user.id, message: data.message });
+                const saved = await chatService.createCommunityMessage({
+                    sender: socket.user.id,
+                    message: data.message,
+                    fileUrl: data.fileUrl,
+                    fileType: data.fileType
+                });
+                // Construct full URL for file if it exists using the helper function
+                const fullFileUrl = getFullUrl(data.fileUrl);
+                
+                // Create standardized message object
+                const messageObject = {
+                    // Include both formats for compatibility
+                    user: socket.user.username || socket.user.id,
+                    senderId: {
+                        _id: socket.user.id,
+                        username: socket.user.username
+                    },
+                    message: data.message,
+                    fileUrl: fullFileUrl,
+                    fileType: data.fileType,
+                    timestamp: saved.timestamp,
+                    _id: saved._id
+                };
+                
                 // Emit to all other clients in the room
-                socket.broadcast.to(data.room).emit('communityMessage', {
-                    user: socket.user.username || socket.user.id,
-                    message: data.message,
-                    timestamp: saved.timestamp,
-                    _id: saved._id
-                });
+                socket.broadcast.to(data.room).emit('communityMessage', messageObject);
                 // Emit only to the sender
-                socket.emit('communityMessage', {
-                    user: socket.user.username || socket.user.id,
-                    message: data.message,
-                    timestamp: saved.timestamp,
-                    _id: saved._id
-                });
+                socket.emit('communityMessage', messageObject);
                 if (callback) callback({ delivered: true, messageId: saved._id });
             } catch (err) {
                 console.error('Error saving community message:', err);
@@ -70,7 +84,25 @@ function setupChatSockets(io) {
         // Fetch community chat history
         socket.on('getCommunityHistory', async (room, callback) => {
             const messages = await chatService.getCommunityMessages(); // Optionally filter by room
-            callback(messages);
+            
+            // Transform messages to ensure consistent format with frontend expectations
+            const formattedMessages = messages.map(msg => {
+                // Construct full URL for file if it exists using the helper function
+                const fullFileUrl = getFullUrl(msg.fileUrl);
+                
+                return {
+                    // Include both formats for compatibility
+                    user: msg.senderId?.username || (typeof msg.senderId === 'string' ? msg.senderId : msg.senderId?._id || 'unknown'),
+                    senderId: msg.senderId, // Keep original format for backward compatibility
+                    message: msg.message || '',
+                    fileUrl: fullFileUrl,
+                    fileType: msg.fileType,
+                    timestamp: msg.timestamp,
+                    _id: msg._id
+                };
+            });
+            
+            callback(formattedMessages);
         });
 
         socket.on('disconnect', () => {
@@ -126,4 +158,4 @@ function setupChatSockets(io) {
     });
 }
 
-module.exports = setupChatSockets; 
+module.exports = setupChatSockets;

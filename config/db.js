@@ -9,7 +9,7 @@ const connectDB = async () => {
   process.exit(1);
 }
 
-mongoose.connect("mongodb+srv://newuser123:newuser123@cluster0.o0uhy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

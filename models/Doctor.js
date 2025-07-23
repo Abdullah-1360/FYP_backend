@@ -22,7 +22,8 @@ const doctorSchema = new mongoose.Schema({
         ref: 'Appointment'
     }],
     chatId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
         unique: true
     },
     createdAt: {

@@ -2,10 +2,10 @@
   "name": "plant-ai-diagnostic-backend",
   "version": "1.0.0",
   "description": "Backend for a plant AI diagnostic application with community chat, doctor chat, loyalty rewards, and more.",
-  "main": "src/app.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

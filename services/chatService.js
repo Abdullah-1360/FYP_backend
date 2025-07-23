@@ -1,11 +1,13 @@
 const Chat = require('../models/Chat');
 
 // Create a community message
-const createCommunityMessage = async ({ sender, message }) => {
+const createCommunityMessage = async ({ sender, message, fileUrl, fileType }) => {
     const newMessage = new Chat({
         chatType: 'community',
         senderId: sender,
         message,
+        fileUrl,
+        fileType,
         timestamp: new Date()
     });
     return await newMessage.save();
