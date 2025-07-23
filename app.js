@@ -19,7 +19,6 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-
 require('dotenv').config();
 const dbconfig=require('./config/db'); 
 const app = express();
@@ -59,10 +58,10 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
-app.use('/api/admin', authMiddleware.authenticateAdmin, adminRoutes);
-app.use('/api/chat', chatRoutes);
 
-// Error handler middleware
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(cors());
 app.use(errorHandler);
 
 const PORT =  5000;
