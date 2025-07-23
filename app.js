@@ -19,12 +19,12 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+
 require('dotenv').config();
 const dbconfig=require('./config/db'); 
 const app = express();
 app.use(express.json());
 dbconfig(); // Call the function to connect to the database
-
 
 // Configure CORS - Must be before routes
 
@@ -38,7 +38,6 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };
-
 app.use(cors(corsOptions));
 // Handle pre-flight requests
 app.options('*', cors(corsOptions));
@@ -61,7 +60,6 @@ app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', authMiddleware.authenticateAdmin, adminRoutes);
 app.use('/api/chat', chatRoutes);
 
-const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
 app.use(errorHandler);
