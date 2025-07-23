@@ -58,6 +58,8 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin', authMiddleware.authenticateAdmin, adminRoutes);
+app.use('/api/chat', chatRoutes);
 
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
