@@ -20,25 +20,50 @@ const getCommunityMessages = async () => {
 
 // Create a doctor (private) message
 const createDoctorMessage = async ({ sender, receiver, message }) => {
+    console.log('Creating doctor message:', { sender, receiver, message });
+    
     const newMessage = new Chat({
         chatType: 'doctor',
         senderId: sender,
         receiverId: receiver,
+        receiverModel: 'Doctor',
         message,
         timestamp: new Date()
     });
-    return await newMessage.save();
+    
+    try {
+        const saved = await newMessage.save();
+        console.log('Doctor message saved successfully:', saved._id);
+        return saved;
+    } catch (error) {
+        console.error('Error saving doctor message:', error);
+        throw error;
+    }
 };
 
 // Get all messages between a user and a doctor
 const getDoctorMessages = async (userId, doctorId) => {
-    return await Chat.find({
-        chatType: 'doctor',
-        $or: [
-            { senderId: userId, receiverId: doctorId },
-            { senderId: doctorId, receiverId: userId }
-        ]
-    }).populate('senderId', 'username').populate('receiverId', 'username');
+    console.log('Fetching doctor messages:', { userId, doctorId });
+    
+    try {
+        const messages = await Chat.find({
+            chatType: 'doctor',
+            $or: [
+                { senderId: userId, receiverId: doctorId },
+                { senderId: doctorId, receiverId: userId }
+            ]
+        }).populate('senderId', 'username').populate({
+            path: 'receiverId',
+            select: 'username name',
+            refPath: 'receiverModel'
+        });
+        
+        console.log(`Found ${messages.length} doctor messages`);
+        return messages;
+    } catch (error) {
+        console.error('Error fetching doctor messages:', error);
+        throw error;
+    }
 };
 
 // Get all chat history for a user

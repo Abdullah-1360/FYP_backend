@@ -8,8 +8,13 @@ const chatSchema = new mongoose.Schema({
     },
     receiverId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        refPath: 'receiverModel',
         required: false // Not required for community messages
+    },
+    receiverModel: {
+        type: String,
+        required: false,
+        enum: ['User', 'Doctor']
     },
     message: {
         type: String,

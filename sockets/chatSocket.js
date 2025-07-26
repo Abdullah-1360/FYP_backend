@@ -6,8 +6,11 @@ const onlineUsers = new Map(); // userId -> socketId
 
 function socketAuthMiddleware(socket, next) {
     const token = socket.handshake.auth?.token;
+    console.log('Socket auth attempt - token:', token ? 'present' : 'missing');
     const user = verifyUserToken(token);
+    console.log('Socket auth result - user:', user ? user.id : 'null');
     if (!user) {
+        console.log('Socket auth failed - rejecting connection');
         return next(new Error('Authentication error: Invalid or missing token'));
     }
     socket.user = user;
@@ -15,6 +18,14 @@ function socketAuthMiddleware(socket, next) {
 }
 
 function setupChatSockets(io) {
+    // General connection handler for debugging
+    io.on('connection', (socket) => {
+        console.log('General socket connection established:', socket.id);
+        socket.on('disconnect', () => {
+            console.log('General socket disconnected:', socket.id);
+        });
+    });
+    
     // Community chat namespace
     const communityNamespace = io.of('/community');
     communityNamespace.use(socketAuthMiddleware);
@@ -115,10 +126,12 @@ function setupChatSockets(io) {
     const privateNamespace = io.of('/private');
     privateNamespace.use(socketAuthMiddleware);
     privateNamespace.on('connection', (socket) => {
+        console.log('Client connected to /private namespace:', socket.user.id);
         onlineUsers.set(socket.user.id, socket.id);
         privateNamespace.emit('userOnline', { userId: socket.user.id });
 
         socket.on('joinPrivateRoom', (roomId) => {
+            console.log('Client joining private room:', roomId, 'User:', socket.user.id);
             socket.join(roomId);
             // Emit current room user count
             const count = privateNamespace.adapter.rooms.get(roomId)?.size || 0;
@@ -135,14 +148,35 @@ function setupChatSockets(io) {
 
         // Private message
         socket.on('privateMessage', async (data, callback) => {
-            const saved = await chatService.createDoctorMessage({ sender: socket.user.id, receiver: data.receiverId, message: data.message });
-            privateNamespace.to(data.roomId).emit('privateMessage', {
-                user: socket.user.username || socket.user.id,
-                message: data.message,
-                timestamp: saved.timestamp,
-                _id: saved._id
-            });
-            if (callback) callback({ delivered: true, messageId: saved._id });
+            try {
+                console.log('Saving private message:', {
+                    sender: socket.user.id,
+                    receiver: data.receiverId,
+                    message: data.message,
+                    roomId: data.roomId
+                });
+                
+                const saved = await chatService.createDoctorMessage({ 
+                    sender: socket.user.id, 
+                    receiver: data.receiverId, 
+                    message: data.message 
+                });
+                
+                console.log('Private message saved successfully:', saved._id);
+                
+                // Emit to all clients in the room (including sender)
+                privateNamespace.in(data.roomId).emit('privateMessage', {
+                    user: socket.user.username || socket.user.id,
+                    message: data.message,
+                    timestamp: saved.timestamp,
+                    _id: saved._id
+                });
+                
+                if (callback) callback({ delivered: true, messageId: saved._id });
+            } catch (err) {
+                console.error('Error saving private message:', err);
+                if (callback) callback({ delivered: false, error: err.message });
+            }
         });
 
         // Read receipt
@@ -152,6 +186,7 @@ function setupChatSockets(io) {
         });
 
         socket.on('disconnect', () => {
+            console.log('Client disconnected from /private namespace:', socket.user.id);
             onlineUsers.delete(socket.user.id);
             privateNamespace.emit('userOffline', { userId: socket.user.id });
         });
