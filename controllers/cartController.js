@@ -138,3 +138,36 @@ exports.clearCart = async (req, res) => {
         res.status(500).json({ message: 'Error clearing cart.', error: error.message });
     }
 };
+
+// PATCH /api/cart/decrement/:itemId
+exports.decrementItemQuantity = async (req, res) => {
+    const userId = req.user.id || req.user._id;
+    const { itemId } = req.params;
+
+    try {
+        let cart = await Cart.findOne({ userId });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        const item = cart.items.find((i) => i.medicineId.toString() === itemId);
+        if (!item) {
+            return res.status(404).json({ message: 'Item not found in cart' });
+        }
+
+        if (item.quantity > 1) {
+            item.quantity -= 1;
+        } else {
+            // Remove item if quantity would go below 1
+            cart.items = cart.items.filter((i) => i.medicineId.toString() !== itemId);
+        }
+
+        cart.totalAmount = await calculateTotal(cart.items);
+        await cart.save();
+
+        res.status(200).json({ message: 'Item quantity decremented successfully.', cart });
+    } catch (error) {
+        console.error('Decrement item quantity error:', error);
+        res.status(500).json({ message: 'Error decrementing item quantity.', error: error.message });
+    }
+};

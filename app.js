@@ -64,14 +64,15 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
 app.use(errorHandler);
 
-const PORT =  5000;
+const PORT = process.env.PORT || 5000;
 
 // --- SOCKET.IO SETUP ---
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: ['https://fyp-backend-wheat.vercel.app', 'http://192.168.100.187:5000'],
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true
     }
 });

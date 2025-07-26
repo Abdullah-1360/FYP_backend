@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-const { addItemToCart, removeItemFromCart, viewCart, clearCart } = require('../controllers/cartController');
+const { addItemToCart, removeItemFromCart, viewCart, clearCart, decrementItemQuantity } = require('../controllers/cartController');
 const { authenticateUser } = require('../middlewares/authMiddleware');
 
 // Route to add an item to the cart
@@ -14,5 +14,8 @@ router.get('/', authenticateUser, viewCart);
 
 // Route to clear the cart
 router.delete('/clear', authenticateUser, clearCart);
+
+// Route to decrement item quantity in the cart
+router.patch('/decrement/:itemId', authenticateUser, decrementItemQuantity);
 
 module.exports = router;
