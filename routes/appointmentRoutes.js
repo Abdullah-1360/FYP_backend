@@ -6,7 +6,8 @@ const {
   getUserAppointments,
   getDoctorAppointments,
   cancelAppointment,
-  updateAppointmentStatus
+  updateAppointmentStatus,
+  getAppointmentById
 } = require('../controllers/appointmentController');
 
 // User routes
@@ -17,5 +18,8 @@ router.post('/:appointmentId/cancel', authenticateUser, cancelAppointment);
 // Doctor routes
 router.get('/doctor/:doctorId', authenticateUser, getDoctorAppointments);
 router.patch('/:appointmentId/status', authenticateUser, updateAppointmentStatus);
+
+// Common routes
+router.get('/:appointmentId', authenticateUser, getAppointmentById);
 
 module.exports = router;

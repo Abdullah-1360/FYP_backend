@@ -46,6 +46,37 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
+// Get a specific appointment by ID
+exports.getAppointmentById = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    
+    // Find the appointment and populate doctor and user details
+    const appointment = await Appointment.findById(appointmentId)
+      .populate('doctorId', 'name specialization experience')
+      .populate('userId', 'name email');
+    
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    
+    // Check if the user is authorized to view this appointment
+    // Only the appointment's user, doctor, or an admin can view it
+    const isUser = appointment.userId._id.toString() === req.user.id;
+    const isDoctor = appointment.doctorId._id.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    
+    if (!isUser && !isDoctor && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to view this appointment' });
+    }
+    
+    res.status(200).json(appointment);
+  } catch (error) {
+    console.error('Error getting appointment:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Get user's appointments
 exports.getUserAppointments = async (req, res) => {
   try {
