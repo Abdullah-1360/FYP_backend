@@ -2,7 +2,7 @@ const { verifyUserToken } = require('../middlewares/authMiddleware');
 const chatService = require('../services/chatService');
 const { getFullUrl } = require('../utils/helpers');
 
-const onlineUsers = new Map(); // userId -> socketId
+const onlineUsers = new Map(); // userId -> Set of socketIds
 
 function socketAuthMiddleware(socket, next) {
     const token = socket.handshake.auth?.token;
@@ -30,7 +30,11 @@ function setupChatSockets(io) {
     const communityNamespace = io.of('/community');
     communityNamespace.use(socketAuthMiddleware);
     communityNamespace.on('connection', (socket) => {
-        onlineUsers.set(socket.user.id, socket.id);
+        // Add socket to user's connection set
+        if (!onlineUsers.has(socket.user.id)) {
+            onlineUsers.set(socket.user.id, new Set());
+        }
+        onlineUsers.get(socket.user.id).add(socket.id);
         communityNamespace.emit('userOnline', { userId: socket.user.id });
 
         socket.on('joinRoom', (room) => {
@@ -117,8 +121,24 @@ function setupChatSockets(io) {
         });
 
         socket.on('disconnect', () => {
-            onlineUsers.delete(socket.user.id);
-            communityNamespace.emit('userOffline', { userId: socket.user.id });
+            // Remove socket from user's connection set
+            if (onlineUsers.has(socket.user.id)) {
+                onlineUsers.get(socket.user.id).delete(socket.id);
+                // If no more connections for this user, remove from map
+                if (onlineUsers.get(socket.user.id).size === 0) {
+                    onlineUsers.delete(socket.user.id);
+                    communityNamespace.emit('userOffline', { userId: socket.user.id });
+                }
+            }
+            
+            // Update room user count for all rooms this socket was in
+            const rooms = Array.from(socket.rooms);
+            rooms.forEach(room => {
+                if (room !== socket.id) { // Skip the socket's own room
+                    const count = communityNamespace.adapter.rooms.get(room)?.size || 0;
+                    communityNamespace.to(room).emit('roomUsers', { room, count });
+                }
+            });
         });
     });
 
@@ -127,7 +147,11 @@ function setupChatSockets(io) {
     privateNamespace.use(socketAuthMiddleware);
     privateNamespace.on('connection', (socket) => {
         console.log('Client connected to /private namespace:', socket.user.id);
-        onlineUsers.set(socket.user.id, socket.id);
+        // Add socket to user's connection set
+        if (!onlineUsers.has(socket.user.id)) {
+            onlineUsers.set(socket.user.id, new Set());
+        }
+        onlineUsers.get(socket.user.id).add(socket.id);
         privateNamespace.emit('userOnline', { userId: socket.user.id });
 
         socket.on('joinPrivateRoom', (roomId) => {
@@ -187,8 +211,24 @@ function setupChatSockets(io) {
 
         socket.on('disconnect', () => {
             console.log('Client disconnected from /private namespace:', socket.user.id);
-            onlineUsers.delete(socket.user.id);
-            privateNamespace.emit('userOffline', { userId: socket.user.id });
+            // Remove socket from user's connection set
+            if (onlineUsers.has(socket.user.id)) {
+                onlineUsers.get(socket.user.id).delete(socket.id);
+                // If no more connections for this user, remove from map
+                if (onlineUsers.get(socket.user.id).size === 0) {
+                    onlineUsers.delete(socket.user.id);
+                    privateNamespace.emit('userOffline', { userId: socket.user.id });
+                }
+            }
+            
+            // Update room user count for all rooms this socket was in
+            const rooms = Array.from(socket.rooms);
+            rooms.forEach(room => {
+                if (room !== socket.id) { // Skip the socket's own room
+                    const count = privateNamespace.adapter.rooms.get(room)?.size || 0;
+                    privateNamespace.to(room).emit('roomUsers', { room, count });
+                }
+            });
         });
     });
 }
