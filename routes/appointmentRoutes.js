@@ -10,7 +10,6 @@ const {
   getAppointmentById
 } = require('../controllers/appointmentController');
 
-// User routes
 router.post('/', authenticateUser, createAppointment);
 router.get('/my-appointments', authenticateUser, getUserAppointments);
 router.post('/:appointmentId/cancel', authenticateUser, cancelAppointment);
