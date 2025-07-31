@@ -7,7 +7,7 @@ const { getFullUrl } = require('../utils/helpers');
 const router = express.Router();
 
 // Community chat file upload - moved to specific route
-router.use('/upload', chatUpload);
+router.use('/', chatUpload);
 
 // Fetch private (doctor) chat history for the logged-in user and a specific doctor
 router.get('/private/:doctorId', authenticateUser, async (req, res, next) => {
@@ -33,4 +33,4 @@ router.get('/private/:doctorId', authenticateUser, async (req, res, next) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

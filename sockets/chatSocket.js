@@ -30,11 +30,7 @@ function setupChatSockets(io) {
     const communityNamespace = io.of('/community');
     communityNamespace.use(socketAuthMiddleware);
     communityNamespace.on('connection', (socket) => {
-        // Add socket to user's connection set
-        if (!onlineUsers.has(socket.user.id)) {
-            onlineUsers.set(socket.user.id, new Set());
-        }
-        onlineUsers.get(socket.user.id).add(socket.id);
+        onlineUsers.set(socket.user.id, socket.id);
         communityNamespace.emit('userOnline', { userId: socket.user.id });
 
         socket.on('joinRoom', (room) => {
@@ -121,15 +117,8 @@ function setupChatSockets(io) {
         });
 
         socket.on('disconnect', () => {
-            // Remove socket from user's connection set
-            if (onlineUsers.has(socket.user.id)) {
-                onlineUsers.get(socket.user.id).delete(socket.id);
-                // If no more connections for this user, remove from map
-                if (onlineUsers.get(socket.user.id).size === 0) {
-                    onlineUsers.delete(socket.user.id);
-                    communityNamespace.emit('userOffline', { userId: socket.user.id });
-                }
-            }
+            onlineUsers.delete(socket.user.id);
+            communityNamespace.emit('userOffline', { userId: socket.user.id });
             
             // Update room user count for all rooms this socket was in
             const rooms = Array.from(socket.rooms);
@@ -147,11 +136,7 @@ function setupChatSockets(io) {
     privateNamespace.use(socketAuthMiddleware);
     privateNamespace.on('connection', (socket) => {
         console.log('Client connected to /private namespace:', socket.user.id);
-        // Add socket to user's connection set
-        if (!onlineUsers.has(socket.user.id)) {
-            onlineUsers.set(socket.user.id, new Set());
-        }
-        onlineUsers.get(socket.user.id).add(socket.id);
+        onlineUsers.set(socket.user.id, socket.id);
         privateNamespace.emit('userOnline', { userId: socket.user.id });
 
         socket.on('joinPrivateRoom', (roomId) => {
@@ -211,15 +196,8 @@ function setupChatSockets(io) {
 
         socket.on('disconnect', () => {
             console.log('Client disconnected from /private namespace:', socket.user.id);
-            // Remove socket from user's connection set
-            if (onlineUsers.has(socket.user.id)) {
-                onlineUsers.get(socket.user.id).delete(socket.id);
-                // If no more connections for this user, remove from map
-                if (onlineUsers.get(socket.user.id).size === 0) {
-                    onlineUsers.delete(socket.user.id);
-                    privateNamespace.emit('userOffline', { userId: socket.user.id });
-                }
-            }
+            onlineUsers.delete(socket.user.id);
+            privateNamespace.emit('userOffline', { userId: socket.user.id });
             
             // Update room user count for all rooms this socket was in
             const rooms = Array.from(socket.rooms);
