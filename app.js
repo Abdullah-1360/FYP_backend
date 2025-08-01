@@ -1,11 +1,8 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const authMiddleware = require('./middlewares/authMiddleware');
-const chatService = require('./services/chatService');
 const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
