@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Loyalty = require('../models/Loyalty');
 const Cart = require('../models/Cart');
+const Doctor = require('../models/Doctor');
 
 // Get user profile
 exports.getUserProfile = async (req, res) => {
@@ -59,7 +60,34 @@ exports.getUserLoyaltyPoints = async (req, res) => {
 // Get user appointments
 exports.getUserAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.find({ userId: req.user.id });
+        // Find all doctors that have appointments for this user
+        const doctors = await Doctor.find({
+            'appointments.userId': req.user.id
+        }).populate('appointments.userId', 'name email phone');
+
+        // Extract and format appointments
+        const appointments = [];
+        doctors.forEach(doctor => {
+            doctor.appointments.forEach(appointment => {
+                if (appointment.userId._id.toString() === req.user.id) {
+                    appointments.push({
+                        _id: appointment._id,
+                        doctorId: doctor._id,
+                        doctorName: doctor.name,
+                        doctorSpecialty: doctor.specialty,
+                        userId: appointment.userId,
+                        appointmentDate: appointment.appointmentDate,
+                        status: appointment.status,
+                        notes: appointment.notes,
+                        createdAt: appointment.createdAt
+                    });
+                }
+            });
+        });
+
+        // Sort appointments by date
+        appointments.sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+
         res.status(200).json({ appointments });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
