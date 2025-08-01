@@ -1,6 +1,5 @@
 const User = require('../models/User');
 const Loyalty = require('../models/Loyalty');
-const Appointment = require('../models/Appointment');
 const Cart = require('../models/Cart');
 
 // Get user profile

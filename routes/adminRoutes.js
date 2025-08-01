@@ -41,6 +41,11 @@ router.get('/doctors', adminController.getAllDoctors);
 router.delete('/users/:id', adminController.deleteUser);
 router.delete('/doctors/:id', adminController.deleteDoctor);
 
+// Route to manage appointments
+router.get('/appointments', adminController.getAllAppointments);
+router.put('/appointments/:id/status', adminController.updateAppointmentStatus);
+router.put('/appointments/:id/reschedule', adminController.rescheduleAppointment);
+
 router.post('/upload', upload.single('file'), (req, res) => {
   try {
     const filePath = `/uploads/medicines/${req.file.filename}`;
