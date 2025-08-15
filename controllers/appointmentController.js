@@ -175,29 +175,54 @@ exports.getDoctorAppointments = async (req, res) => {
   try {
     const doctorId = req.params.doctorId;
     
+    console.log('Fetching appointments for doctor ID:', doctorId);
+
     // Find the doctor and populate appointment user details
     const doctor = await Doctor.findById(doctorId)
       .populate('appointments.userId', 'name email');
+
+    console.log('Doctor found:', doctor ? 'Yes' : 'No');
+    if (doctor) {
+      console.log('Doctor appointments count:', doctor.appointments ? doctor.appointments.length : 0);
+    }
 
     if (!doctor) {
       return res.status(404).json({ message: 'Doctor not found' });
     }
 
     // Format appointments with proper structure
-    const formattedAppointments = doctor.appointments.map(appointment => ({
-      _id: appointment._id,
-      doctorId: {
-        _id: doctor._id,
-        name: doctor.name,
-        specialization: doctor.specialization,
-        experience: doctor.experience
-      },
-      userId: appointment.userId,
-      appointmentDate: appointment.appointmentDate.toISOString(),
-      status: appointment.status,
-      notes: appointment.notes,
-      createdAt: appointment.createdAt.toISOString()
-    }));
+    const formattedAppointments = doctor.appointments.map(appointment => {
+      // Safely convert dates to ISO string
+      let appointmentDate = null;
+      let createdAt = null;
+      
+      try {
+        appointmentDate = appointment.appointmentDate ? new Date(appointment.appointmentDate).toISOString() : null;
+      } catch (e) {
+        appointmentDate = null;
+      }
+      
+      try {
+        createdAt = appointment.createdAt ? new Date(appointment.createdAt).toISOString() : null;
+      } catch (e) {
+        createdAt = null;
+      }
+      
+      return {
+        _id: appointment._id,
+        doctorId: {
+          _id: doctor._id,
+          name: doctor.name,
+          specialization: doctor.specialization,
+          experience: doctor.experience
+        },
+        userId: appointment.userId,
+        appointmentDate: appointmentDate,
+        status: appointment.status,
+        notes: appointment.notes,
+        createdAt: createdAt
+      };
+    });
 
     // Sort by appointment date (newest first)
     formattedAppointments.sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));

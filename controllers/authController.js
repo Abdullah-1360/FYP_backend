@@ -1,5 +1,6 @@
 // authController.js
 const User = require('../models/User');
+const Doctor = require('../models/Doctor');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -48,6 +49,36 @@ exports.login = async (req, res) => {
                 email: user.email,
                 role: user.role 
             } 
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error logging in', error });
+    }
+};
+
+// Doctor login
+exports.doctorLogin = async (req, res) => {
+    const { name } = req.body;
+    try {
+        const doctor = await Doctor.findOne({ name });
+        if (!doctor) {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+
+        const token = jwt.sign(
+            { id: doctor._id, role: 'doctor', type: 'doctor' }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '24h' }
+        );
+        
+        res.status(200).json({ 
+            token, 
+            doctor: { 
+                id: doctor._id, 
+                name: doctor.name, 
+                specialization: doctor.specialization,
+                chatId: doctor.chatId
+            },
+            message: 'Login successful'
         });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in', error });

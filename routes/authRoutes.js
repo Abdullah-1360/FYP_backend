@@ -11,6 +11,9 @@ router.post('/signup', validateSignup, authController.signup);
 // User login route
 router.post('/login', validateLogin, authController.login);
 
+// Doctor login route
+router.post('/doctor-login', authController.doctorLogin);
+
 // Token validation route
 router.get('/validate', authController.validateToken);
 
